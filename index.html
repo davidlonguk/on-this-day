@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>On this day</title>
+	<style>
+		body {
+			font-family: Helvetica, Verdana;
+		}
+		.person {
+			display: inline-block;
+			border: 3px solid navy;
+			background: #eef;
+			padding: 10px 20px;
+			margin-bottom: 10px;
+		}
+		.person h2 {
+			padding: 0;
+			margin: 0 0 10px 0;
+		}
+
+		.person ul {
+			margin: 0;
+			padding: 0;
+			list-style-position: inside;
+			text-transform: uppercase;
+		}
+	</style>
+	<script src="jquery-3.1.1.min.js"></script>
+	<script>
+		var otd = [];
+
+		// Setup data source
+		otd.dataSource = [
+			{	id: "0409", name: "Kristen Stewart", dob: "1990-04-09", birthday: "04-09"	},
+			{	id: "0410", name: "Daisy Ridley", dob: "1992-04-10", birthday: "04-10"	},
+			{	id: "0411", name: "Tricia Helfer", dob: "1974-04-11", birthday: "04-11"	},
+			{	id: "0412", name: "Claire Danes", dob: "1979-04-12", birthday: "04-12"	},
+			{	id: "0413", name: "Ron Perlman", dob: "1950-04-13", birthday: "04-13"	},
+			{	id: "0414", name: "Adrien Brody", dob: "1973-04-14", birthday: "04-14"	},
+			{	id: "0415", name: "Emma Watson", dob: "1990-04-15", birthday: "04-15"	},
+
+		];
+
+		// calculate ages and add to objects
+		//let dataSize = otd.dataSource.length;
+		//console.log(dataSize);
+
+		for (let i = 0; i < otd.dataSource.length; i++) {
+			//console.log(otd.dataSource[i].name);
+			let dob = otd.dataSource[i].dob;
+			let age = getAge(dob);
+	
+			
+			otd.dataSource[i].age = age;
+		}
+
+		function getAge(dateString) {
+		    var today = new Date();
+		    var birthDate = new Date(dateString);
+		    var age = today.getFullYear() - birthDate.getFullYear();
+		    var m = today.getMonth() - birthDate.getMonth();
+		    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+		        age--;
+		    }
+		    return age;
+		}
+
+		// default target date is the current day			
+		otd.targetDate = new Date();
+		otd.searchDate = ('0' + (otd.targetDate.getMonth()+1)).slice(-2) + "-" + ('0' + otd.targetDate.getDate()).slice(-2);
+
+		class Person {
+		  constructor(personID) {
+		     this.ID = String(personID);
+		     this.personData = this.findPerson(personID);
+		     this.name = this.personData.name;
+		     this.dob = this.personData.dob;
+		     this.age = this.personData.age;
+		  }
+		  findPerson( personID ) {
+		  	console.log("personID: " + personID);
+		  	let personData = otd.dataSource.find(x => x.id === personID ); //function (person) { return person.birthday == otd.searchDate }
+		  	// x => x.id == personID
+		  	//console.log("name: " + personData.name);
+		  	//console.log("personData: " + personData.name);
+		  	return personData;
+		  }	
+
+		  personHTML() {
+		  	return `<div class="person">
+						<h2>` + this.name + `</h2>
+						<ul>
+							<li><strong>Born: </strong>` + this.dob + `</li>
+							<li><strong>Age:  </strong>` + this.age + `</li>
+						</ul>
+					</div>`;
+		  }
+		}
+
+		class PersonController {
+				constructor(targetDate) {
+					this.targetDate = new Date(targetDate);
+					//this.formattedDate = 
+					//otd.dataSource.find(x => x.id == personID);
+					this.personID = this.formatDate(this.targetDate);
+					
+				}
+				init() {
+					//console.log(this.targetDate);
+					//console.log("PID: " + this.personID);
+					this.personObj = this.makePerson(this.personID);
+					this.renderPerson(this.personObj);
+				}
+				formatDate(rawDate) {
+					//console.log("rawDate: " + rawDate);
+					let day = rawDate.getDate(),
+						month = rawDate.getMonth() + 1;
+						
+					if (day < 10) { day = '0' + day; }
+					if (month < 10) { month = '0' + month; }
+					let formattedDate = month + day;
+					//console.log("formattedDate: " + formattedDate);
+        			return formattedDate;
+				}
+				makePerson(personID) {
+					let birthdayPerson = new Person(personID);
+					return birthdayPerson;
+				}
+
+				renderPerson(personObj) {
+					//console.log(personObj);
+					//$( document ).ready(function() {
+						$("#otd-result").html( personObj.personHTML() );
+					//});
+				}
+
+			}
+
+
+
+		$( document ).ready(function() {
+
+			
+
+		// display target date
+		$('h1 span').text(otd.targetDate.toLocaleDateString("en-gb", {day: "numeric",month: "2-digit"}) );
+
+
+		/*otd.searchDate = ('0' + (otd.targetDate.getMonth()+1)).slice(-2) + "-" + ('0' + otd.targetDate.getDate()).slice(-2);
+		
+		otd.person = otd.dataSource.find(function (person) { return person.birthday == otd.searchDate });
+
+		let personDOB = new Date(otd.person.dob);
+		
+	  	let options = {  
+		    weekday: "long", year: "numeric", month: "long",  
+		    day: "numeric"  
+		}; 
+		//let prettyDOB = personDOB.getDate() + " " + monthNames[personDOB.getMonth()] + " " + personDOB.getFullYear();
+		let prettyDOB = personDOB.toLocaleDateString("en-gb", options);
+		
+		$( "#debug" ).text( otd.person.name + ": " + prettyDOB );
+
+		console.log(otd.targetDate.toISOString().split('T')[0]); //.toLocaleDateString("en-gb", {day: "2-digit", month: "2-digit"}) );*/
+
+
+		personController = new PersonController(otd.targetDate);
+  		personController.init();
+
+		});
+		
+		//otd.searchDate = otd.targetDate.toLocaleDateString("en-us",{month: "2-digit", day: "2-digit"});
+	</script>
+</head>
+<body>
+	<h1>On This Day...<span></span></h1>
+	<div id="otd-result">
+		<div class="person">
+			<h2>Person Name</h2>
+			<ul>
+				<li>Born: 20 May 2006</li>
+				<li>Age: 11</li>
+			</ul>
+		</div>
+		
+	</div>
+	<div id="debug">
+
+	</div>
+
+</body>
+</html>
