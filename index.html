@@ -42,9 +42,6 @@
 		];
 
 		// calculate ages and add to objects
-		//let dataSize = otd.dataSource.length;
-		//console.log(dataSize);
-
 		for (let i = 0; i < otd.dataSource.length; i++) {
 			//console.log(otd.dataSource[i].name);
 			let dob = otd.dataSource[i].dob;
@@ -79,8 +76,8 @@
 		  }
 		  findPerson( personID ) {
 		  	console.log("personID: " + personID);
-		  	let personData = otd.dataSource.find(x => x.id === personID ); //function (person) { return person.birthday == otd.searchDate }
-		  	// x => x.id == personID
+		  	let personData = otd.dataSource.find(x => x.id === personID ); 
+		  	//function (person) { return person.birthday == otd.searchDate }
 		  	//console.log("name: " + personData.name);
 		  	//console.log("personData: " + personData.name);
 		  	return personData;
@@ -100,8 +97,6 @@
 		class PersonController {
 				constructor(targetDate) {
 					this.targetDate = new Date(targetDate);
-					//this.formattedDate = 
-					//otd.dataSource.find(x => x.id == personID);
 					this.personID = this.formatDate(this.targetDate);
 					
 				}
@@ -129,9 +124,9 @@
 
 				renderPerson(personObj) {
 					//console.log(personObj);
-					//$( document ).ready(function() {
-						$("#otd-result").html( personObj.personHTML() );
-					//});
+
+					$("#otd-result").html( personObj.personHTML() );
+
 				}
 
 			}
@@ -140,36 +135,14 @@
 
 		$( document ).ready(function() {
 
-			
-
 		// display target date
 		$('h1 span').text(otd.targetDate.toLocaleDateString("en-gb", {day: "numeric",month: "2-digit"}) );
-
-
-		/*otd.searchDate = ('0' + (otd.targetDate.getMonth()+1)).slice(-2) + "-" + ('0' + otd.targetDate.getDate()).slice(-2);
-		
-		otd.person = otd.dataSource.find(function (person) { return person.birthday == otd.searchDate });
-
-		let personDOB = new Date(otd.person.dob);
-		
-	  	let options = {  
-		    weekday: "long", year: "numeric", month: "long",  
-		    day: "numeric"  
-		}; 
-		//let prettyDOB = personDOB.getDate() + " " + monthNames[personDOB.getMonth()] + " " + personDOB.getFullYear();
-		let prettyDOB = personDOB.toLocaleDateString("en-gb", options);
-		
-		$( "#debug" ).text( otd.person.name + ": " + prettyDOB );
-
-		console.log(otd.targetDate.toISOString().split('T')[0]); //.toLocaleDateString("en-gb", {day: "2-digit", month: "2-digit"}) );*/
-
 
 		personController = new PersonController(otd.targetDate);
   		personController.init();
 
 		});
 		
-		//otd.searchDate = otd.targetDate.toLocaleDateString("en-us",{month: "2-digit", day: "2-digit"});
 	</script>
 </head>
 <body>
