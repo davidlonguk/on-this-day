@@ -1,164 +1,240 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>On this day</title>
-	<style>
-		body {
-			font-family: Helvetica, Verdana;
+<title>On this day</title>
+<style>
+	body {
+		font-family: Helvetica, Verdana;
+	}
+	#wrapper {
+		width: 300px;
+		margin: 0 auto;
+	}
+	.person {
+		display: block;
+		border: 3px solid #000;
+		background: #780d11;
+		color: #fff;
+		padding: 10px 20px;
+		margin-bottom: 10px;
+	}
+	.person h2 {
+		padding: 0;
+		margin: 0 0 10px 0;
+	}
+	.person img {
+		width: 100%;
+		margin-bottom: 5px;
+		border: 3px solid black;
+	}
+	.person ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		text-transform: uppercase;
+	}
+	.person ul li {
+		margin-bottom: 2px;
+		display: block;
+	}
+	nav a {
+		display: inline-block;
+		padding: 10px;
+		border-radius: 5px;
+		background: #000;
+		text-transform: uppercase;
+		font-size: 12px;
+		font-weight: bold;
+		color: #fff;
+		text-decoration: none;
+	}
+	nav a.next {
+		float: right;
+	}
+	nav a:hover {
+		background: #666;
+	}
+</style>
+<script src="jquery-3.1.1.min.js"></script>
+<script>
+	var otd = [];
+
+	// Setup data source
+	otd.dataSource = [
+		{	id: "0409", name: "Kristen Stewart", dob: "1990-04-09", birthday: "04-09", image: "http://esl-photo.com/otd/kristen.jpg"	},
+		{	id: "0410", name: "Daisy Ridley", dob: "1992-04-10", birthday: "04-10", image: "http://esl-photo.com/otd/daisy.jpg"	},
+		{	id: "0411", name: "Tricia Helfer", dob: "1974-04-11", birthday: "04-11", image: "http://esl-photo.com/otd/tricia.jpg"	},
+		{	id: "0412", name: "Claire Danes", dob: "1979-04-12", birthday: "04-12", image: "http://esl-photo.com/otd/claire.jpg"	},
+		{	id: "0413", name: "Ron Perlman", dob: "1950-04-13", birthday: "04-13",	image: "http://esl-photo.com/otd/ron.jpg"},
+		{	id: "0414", name: "Adrien Brody", dob: "1973-04-14", birthday: "04-14", image: "http://esl-photo.com/otd/adrien.jpg"	},
+		{	id: "0415", name: "Emma Watson", dob: "1990-04-15", birthday: "04-15", image: "http://esl-photo.com/otd/emma.jpg"	},
+	];
+
+	// calculate ages and add to dataSource
+	for (let i = 0; i < otd.dataSource.length; i++) {
+		//console.log(otd.dataSource[i].name);
+		let dob = otd.dataSource[i].dob;
+		let age = getAge(dob);
+
+		otd.dataSource[i].age = age;
+	}
+
+	function getAge(dateString) {
+	    var today = new Date();
+	    var birthDate = new Date(dateString);
+	    var age = today.getFullYear() - birthDate.getFullYear();
+	    var m = today.getMonth() - birthDate.getMonth();
+	    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+	        age--;
+	    }
+	    return age;
+	}
+
+	// default target date is the current day			
+	otd.targetDate = new Date();
+	//otd.searchDate = ('0' + (otd.targetDate.getMonth()+1)).slice(-2) + "-" + ('0' + otd.targetDate.getDate()).slice(-2);
+
+	class Person {
+
+	  constructor(personID) {
+	     this.ID = String(personID);
+	     this.personData = this.findPerson(personID);
+	     this.name = this.personData.name;
+	     this.dob = this.personData.dob;
+	     this.age = this.personData.age;
+	     this.img = this.personData.image;
+	  }
+
+	  findPerson( personID ) {
+	  	let personData = otd.dataSource.find(x => x.id === personID ); 
+	  	//function (person) { return person.birthday == otd.searchDate }
+	  	if (typeof personData == 'undefined' ) {
+	  		$("#otd-result").html( "<h2>No Person Found</h2>" );
+		  		personData = {
+		  			name: "Not found",
+		  			dob: "Not found",
+		  			age: "Not found",
+		  			image: "http://esl-photo.com/otd/anon.jpg"
+		  		}
+	  	}
+
+	  	return personData;
+	  }	
+
+	  personHTML() {
+	  	return `<div class="person">
+					<h2>` + this.name + `</h2>
+					<img src="` + this.img + `" alt="` + this.name + `">
+					<ul>
+						<li><strong>Born: </strong>` + this.dob + `</li>
+						<li><strong>Age:  </strong>` + this.age + `</li>
+					</ul>
+				</div>`;
+	  }
+	}
+
+	class PersonController {
+		
+		constructor(targetDate) {
+			this.targetDate = new Date(targetDate);
+			this.personID = this.formatDate(this.targetDate);			
 		}
-		.person {
-			display: inline-block;
-			border: 3px solid navy;
-			background: #eef;
-			padding: 10px 20px;
-			margin-bottom: 10px;
-		}
-		.person h2 {
-			padding: 0;
-			margin: 0 0 10px 0;
-		}
 
-		.person ul {
-			margin: 0;
-			padding: 0;
-			list-style-position: inside;
-			text-transform: uppercase;
-		}
-	</style>
-	<script src="jquery-3.1.1.min.js"></script>
-	<script>
-		var otd = [];
-
-		// Setup data source
-		otd.dataSource = [
-			{	id: "0409", name: "Kristen Stewart", dob: "1990-04-09", birthday: "04-09"	},
-			{	id: "0410", name: "Daisy Ridley", dob: "1992-04-10", birthday: "04-10"	},
-			{	id: "0411", name: "Tricia Helfer", dob: "1974-04-11", birthday: "04-11"	},
-			{	id: "0412", name: "Claire Danes", dob: "1979-04-12", birthday: "04-12"	},
-			{	id: "0413", name: "Ron Perlman", dob: "1950-04-13", birthday: "04-13"	},
-			{	id: "0414", name: "Adrien Brody", dob: "1973-04-14", birthday: "04-14"	},
-			{	id: "0415", name: "Emma Watson", dob: "1990-04-15", birthday: "04-15"	},
-
-		];
-
-		// calculate ages and add to objects
-		for (let i = 0; i < otd.dataSource.length; i++) {
-			//console.log(otd.dataSource[i].name);
-			let dob = otd.dataSource[i].dob;
-			let age = getAge(dob);
-	
-			
-			otd.dataSource[i].age = age;
-		}
-
-		function getAge(dateString) {
-		    var today = new Date();
-		    var birthDate = new Date(dateString);
-		    var age = today.getFullYear() - birthDate.getFullYear();
-		    var m = today.getMonth() - birthDate.getMonth();
-		    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-		        age--;
-		    }
-		    return age;
-		}
-
-		// default target date is the current day			
-		otd.targetDate = new Date();
-		otd.searchDate = ('0' + (otd.targetDate.getMonth()+1)).slice(-2) + "-" + ('0' + otd.targetDate.getDate()).slice(-2);
-
-		class Person {
-		  constructor(personID) {
-		     this.ID = String(personID);
-		     this.personData = this.findPerson(personID);
-		     this.name = this.personData.name;
-		     this.dob = this.personData.dob;
-		     this.age = this.personData.age;
-		  }
-		  findPerson( personID ) {
-		  	console.log("personID: " + personID);
-		  	let personData = otd.dataSource.find(x => x.id === personID ); 
-		  	//function (person) { return person.birthday == otd.searchDate }
-		  	//console.log("name: " + personData.name);
-		  	//console.log("personData: " + personData.name);
-		  	return personData;
-		  }	
-
-		  personHTML() {
-		  	return `<div class="person">
-						<h2>` + this.name + `</h2>
-						<ul>
-							<li><strong>Born: </strong>` + this.dob + `</li>
-							<li><strong>Age:  </strong>` + this.age + `</li>
-						</ul>
-					</div>`;
-		  }
-		}
-
-		class PersonController {
-				constructor(targetDate) {
-					this.targetDate = new Date(targetDate);
-					this.personID = this.formatDate(this.targetDate);
-					
-				}
-				init() {
-					//console.log(this.targetDate);
-					//console.log("PID: " + this.personID);
-					this.personObj = this.makePerson(this.personID);
-					this.renderPerson(this.personObj);
-				}
-				formatDate(rawDate) {
-					//console.log("rawDate: " + rawDate);
-					let day = rawDate.getDate(),
-						month = rawDate.getMonth() + 1;
-						
-					if (day < 10) { day = '0' + day; }
-					if (month < 10) { month = '0' + month; }
-					let formattedDate = month + day;
-					//console.log("formattedDate: " + formattedDate);
-        			return formattedDate;
-				}
-				makePerson(personID) {
-					let birthdayPerson = new Person(personID);
-					return birthdayPerson;
-				}
-
-				renderPerson(personObj) {
-					//console.log(personObj);
-
-					$("#otd-result").html( personObj.personHTML() );
-
-				}
-
+		init() {
+			console.log(this.targetDate);
+			console.log("PID: " + this.personID);
+			if (this.targetDate == "Mon Jan 01 2018 00:00:00 GMT+0000 (GMT Standard Time)") {
+				$("#otd-result").html( "<h2>Invalid Date Selected</h2>" );
+				return;
 			}
+			
+			this.personObj = this.makePerson(this.personID);
+			this.renderPerson(this.personObj);
+		}
 
+		formatDate(rawDate) {
+			//console.log("rawDate: " + rawDate);
+			let day = rawDate.getDate(),
+				month = rawDate.getMonth() + 1;
+				
+			if (day < 10) { day = '0' + day; }
+			if (month < 10) { month = '0' + month; }
+			let formattedDate = month + day;
+			//console.log("formattedDate: " + formattedDate);
+			return formattedDate;
+		}
 
+		makePerson(personID) {
+			let birthdayPerson = new Person(personID);
+			return birthdayPerson;
+		}
 
-		$( document ).ready(function() {
+		renderPerson(personObj) {
+			$("#otd-result").html( personObj.personHTML() );
+		}
+
+		setTargetDate(newDate) {
+			this.targetDate = new Date(newDate);
+			this.personID = this.formatDate(this.targetDate);
+			this.init();
+		}
+
+	}
+
+	$( document ).ready(function() {
 
 		// display target date
 		$('h1 span').text(otd.targetDate.toLocaleDateString("en-gb", {day: "numeric",month: "2-digit"}) );
 
+		// create and initialise person controller with current date
 		personController = new PersonController(otd.targetDate);
   		personController.init();
 
-		});
-		
-	</script>
+  		// set new date on navigation
+  		$("nav#date-nav a").click(function(e){
+  			e.preventDefault();
+  			console.log("nav clicked");
+  			let newDate = new Date(otd.targetDate);
+  			
+  			if ($(this).hasClass("next")) {
+  				newDate.setDate(newDate.getDate() + 1);
+  				otd.targetDate = newDate;
+  				console.log("newDate");
+  				console.log(newDate);
+  			} else if ($(this).hasClass("prev")) {
+  				newDate.setDate(newDate.getDate() - 1);
+  				otd.targetDate = newDate;
+  			}
+  			// tell controller to change the target date
+  			personController.setTargetDate(newDate);
+  			// change date in title to match new date
+  			$('h1 span').text(newDate.toLocaleDateString("en-gb", {day: "numeric",month: "2-digit"}) );
+  		});
+	});
+	
+</script>
 </head>
 <body>
-	<h1>On This Day...<span></span></h1>
-	<div id="otd-result">
-		<div class="person">
-			<h2>Person Name</h2>
-			<ul>
-				<li>Born: 20 May 2006</li>
-				<li>Age: 11</li>
-			</ul>
+	<div id="wrapper">
+		<h1>On This Day...<span></span></h1>
+		<div id="otd-result">
+			<div class="person">
+				<h2>Person Name</h2>
+				<img src="" alt="">
+				<ul>
+					<li>Born: 20 May 2006</li>
+					<li>Age: 11</li>
+				</ul>
+			</div>
+			
 		</div>
-		
-	</div>
-	<div id="debug">
+		<nav id="date-nav">
+			<a href="#" class="prev">Prev Day</a>
+			<a href="#" class="next">Next Day</a>
+		</nav>
+		<div id="debug">
 
+		</div>
 	</div>
 
 </body>
