@@ -55,8 +55,12 @@
 		background: #666;
 	}
 </style>
-<script src="jquery-3.1.1.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
 <script>
+	/*jshint esversion: 6 */
 	var otd = [];
 
 	// Setup data source
@@ -68,6 +72,7 @@
 		{	id: "0413", name: "Ron Perlman", dob: "1950-04-13", birthday: "04-13",	image: "http://esl-photo.com/otd/ron.jpg"},
 		{	id: "0414", name: "Adrien Brody", dob: "1973-04-14", birthday: "04-14", image: "http://esl-photo.com/otd/adrien.jpg"	},
 		{	id: "0415", name: "Emma Watson", dob: "1990-04-15", birthday: "04-15", image: "http://esl-photo.com/otd/emma.jpg"	},
+		{	id: "0416", name: "Martin Lawrence", dob: "1965-04-16", birthday: "04-16", image: "http://esl-photo.com/otd/lawrence.jpg"	}
 	];
 
 	// calculate ages and add to dataSource
@@ -115,7 +120,7 @@
 		  			dob: "Not found",
 		  			age: "Not found",
 		  			image: "http://esl-photo.com/otd/anon.jpg"
-		  		}
+		  		};
 	  	}
 
 	  	return personData;
@@ -187,7 +192,7 @@
 		$('h1 span').text(otd.targetDate.toLocaleDateString("en-gb", {day: "numeric",month: "2-digit"}) );
 
 		// create and initialise person controller with current date
-		personController = new PersonController(otd.targetDate);
+		let personController = new PersonController(otd.targetDate);
   		personController.init();
 
   		// set new date on navigation
@@ -220,10 +225,10 @@
 		<div id="otd-result">
 			<div class="person">
 				<h2>Person Name</h2>
-				<img src="" alt="">
+				<img src="http://esl-photo.com/otd/anon.jpg" alt="">
 				<ul>
-					<li>Born: 20 May 2006</li>
-					<li>Age: 11</li>
+					<li>Born: Date of Birth</li>
+					<li>Age: Person Age</li>
 				</ul>
 			</div>
 			
